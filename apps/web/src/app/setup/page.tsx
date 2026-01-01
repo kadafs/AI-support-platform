@@ -156,7 +156,7 @@ export default function SetupWizard() {
                     {currentStep === 0 && (
                         <div className="space-y-6">
                             <div className="text-center mb-8">
-                                <h1 className="text-2xl font-bold mb-2">Welcome to SupportAI!</h1>
+                                <h1 className="text-2xl font-bold mb-2">Welcome to Oh-liro!</h1>
                                 <p className="text-muted-foreground">
                                     Let's set up your workspace in just a few steps
                                 </p>

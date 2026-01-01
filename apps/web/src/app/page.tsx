@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { MessageSquare, Zap, Shield, ArrowRight } from 'lucide-react';
+import { Ear, Zap, Shield, ArrowRight, Sparkles } from 'lucide-react';
 
 export default function HomePage() {
     return (
@@ -8,10 +8,10 @@ export default function HomePage() {
             <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                            <MessageSquare className="w-5 h-5 text-primary-foreground" />
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                            <Ear className="w-5 h-5 text-white" />
                         </div>
-                        <span className="font-semibold text-lg">SupportAI</span>
+                        <span className="font-semibold text-lg">Oh-liro</span>
                     </div>
                     <nav className="flex items-center gap-4">
                         <Link
@@ -22,7 +22,7 @@ export default function HomePage() {
                         </Link>
                         <Link
                             href="/register"
-                            className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+                            className="text-sm font-medium bg-gradient-to-r from-violet-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
                         >
                             Get Started
                         </Link>
@@ -32,23 +32,23 @@ export default function HomePage() {
 
             {/* Hero */}
             <section className="container mx-auto px-4 py-24 text-center">
-                <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-                    <Zap className="w-4 h-4" />
-                    AI-Powered Customer Support
+                <div className="inline-flex items-center gap-2 bg-violet-500/10 text-violet-600 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+                    <Sparkles className="w-4 h-4" />
+                    AI that listens first
                 </div>
                 <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                    Your AI Support Agent
+                    Customer Support That
                     <br />
-                    That Never Sleeps
+                    <span className="bg-gradient-to-r from-violet-500 to-purple-600 bg-clip-text text-transparent">Actually Understands</span>
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-                    Automate 80% of customer inquiries with AI that sounds human.
-                    Live chat, email, and WhatsApp—all in one unified inbox.
+                    Oh-liro listens, understands, and responds with empathy.
+                    Automate 80% of inquiries while keeping the human touch.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Link
                         href="/register"
-                        className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"
+                        className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white px-8 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"
                     >
                         Start Free Trial
                         <ArrowRight className="w-4 h-4" />
@@ -66,14 +66,14 @@ export default function HomePage() {
             <section className="container mx-auto px-4 py-24">
                 <div className="grid md:grid-cols-3 gap-8">
                     <FeatureCard
-                        icon={<MessageSquare className="w-6 h-6" />}
-                        title="Unified Inbox"
-                        description="All your conversations from every channel in one place. Live chat, email, WhatsApp—seamlessly connected."
+                        icon={<Ear className="w-6 h-6" />}
+                        title="Listens First"
+                        description="Oh-liro understands context and intent before responding. No more robotic, frustrating chatbot experiences."
                     />
                     <FeatureCard
                         icon={<Zap className="w-6 h-6" />}
-                        title="AI First Responder"
-                        description="Your AI handles the first response and resolves common questions instantly, 24/7."
+                        title="Instant & Accurate"
+                        description="AI-powered responses that are fast, accurate, and trained on your knowledge base. 24/7 availability."
                     />
                     <FeatureCard
                         icon={<Shield className="w-6 h-6" />}
@@ -86,7 +86,7 @@ export default function HomePage() {
             {/* Footer */}
             <footer className="border-t py-8">
                 <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-                    © 2026 SupportAI. All rights reserved.
+                    © 2026 Oh-liro. All rights reserved.
                 </div>
             </footer>
         </div>
@@ -104,7 +104,7 @@ function FeatureCard({
 }) {
     return (
         <div className="p-6 rounded-xl border bg-card hover:shadow-lg transition-shadow">
-            <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-lg bg-violet-500/10 text-violet-600 flex items-center justify-center mb-4">
                 {icon}
             </div>
             <h3 className="text-lg font-semibold mb-2">{title}</h3>
@@ -112,3 +112,4 @@ function FeatureCard({
         </div>
     );
 }
+
