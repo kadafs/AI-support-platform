@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@support-platform/database';
+import { addKnowledgeIngestionJob } from '@support-platform/jobs';
 
 // GET /api/knowledge - List knowledge sources
 export async function GET(request: NextRequest) {
@@ -58,8 +59,14 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        // TODO: Trigger background job to process the knowledge source
-        // This would scrape URLs, parse CSVs, or process Q&A pairs
+        // Trigger background job to process the knowledge source
+        await addKnowledgeIngestionJob({
+            workspaceId,
+            sourceId: source.id,
+            sourceType: type,
+            sourceUrl,
+            content,
+        });
 
         return NextResponse.json(source, { status: 201 });
     } catch (error) {

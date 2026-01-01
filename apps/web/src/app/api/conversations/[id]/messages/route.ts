@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@support-platform/database';
+import { addAIResponseJob } from '@support-platform/jobs';
 
 // GET /api/conversations/[id]/messages - Get messages for conversation
 export async function GET(
@@ -74,12 +75,20 @@ export async function POST(
         });
 
         // Update conversation timestamp
-        await prisma.conversation.update({
+        const conversation = await prisma.conversation.update({
             where: { id },
             data: { updatedAt: new Date() },
         });
 
-        // TODO: If sender is CUSTOMER, trigger AI response via background job
+        // Trigger AI response for customer messages
+        if (sender === 'CUSTOMER' && conversation.handler === 'AI') {
+            await addAIResponseJob({
+                conversationId: id,
+                messageId: message.id,
+                workspaceId: conversation.workspaceId,
+                customerMessage: content,
+            });
+        }
 
         return NextResponse.json(message, { status: 201 });
     } catch (error) {
@@ -90,3 +99,4 @@ export async function POST(
         );
     }
 }
+
