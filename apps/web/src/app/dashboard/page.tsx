@@ -167,7 +167,7 @@ export default function InboxPage() {
                                         <span className={cn(
                                             'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium',
                                             conv.handler === 'AI'
-                                                ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
+                                                ? 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400'
                                                 : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
                                         )}>
                                             {conv.handler === 'AI' ? <Bot className="w-3 h-3" /> : <User className="w-3 h-3" />}
@@ -223,7 +223,7 @@ export default function InboxPage() {
                             <div className={cn(
                                 'w-8 h-8 rounded-full flex items-center justify-center text-white text-xs shrink-0',
                                 msg.sender === 'CUSTOMER' ? 'bg-gradient-to-br from-primary to-primary/60' :
-                                    msg.sender === 'AI' ? 'bg-violet-500' : 'bg-emerald-500'
+                                    msg.sender === 'AI' ? 'bg-teal-700' : 'bg-emerald-500'
                             )}>
                                 {msg.sender === 'CUSTOMER' ? 'SC' :
                                     msg.sender === 'AI' ? <Bot className="w-4 h-4" /> : <User className="w-4 h-4" />}

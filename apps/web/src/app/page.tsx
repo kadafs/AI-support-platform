@@ -8,7 +8,7 @@ export default function HomePage() {
             <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-700 to-teal-800 flex items-center justify-center">
                             <Ear className="w-5 h-5 text-white" />
                         </div>
                         <span className="font-semibold text-lg">Oh-liro</span>
@@ -22,7 +22,7 @@ export default function HomePage() {
                         </Link>
                         <Link
                             href="/register"
-                            className="text-sm font-medium bg-gradient-to-r from-violet-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+                            className="text-sm font-medium bg-gradient-to-r from-teal-700 to-teal-800 text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
                         >
                             Get Started
                         </Link>
@@ -32,14 +32,14 @@ export default function HomePage() {
 
             {/* Hero */}
             <section className="container mx-auto px-4 py-24 text-center">
-                <div className="inline-flex items-center gap-2 bg-violet-500/10 text-violet-600 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+                <div className="inline-flex items-center gap-2 bg-teal-700/10 text-teal-700 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
                     <Sparkles className="w-4 h-4" />
                     AI that listens first
                 </div>
                 <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                     Customer Support That
                     <br />
-                    <span className="bg-gradient-to-r from-violet-500 to-purple-600 bg-clip-text text-transparent">Actually Understands</span>
+                    <span className="bg-gradient-to-r from-teal-700 to-teal-800 bg-clip-text text-transparent">Actually Understands</span>
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
                     Oh-liro listens, understands, and responds with empathy.
@@ -48,7 +48,7 @@ export default function HomePage() {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Link
                         href="/register"
-                        className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white px-8 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"
+                        className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-teal-700 to-teal-800 text-white px-8 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"
                     >
                         Start Free Trial
                         <ArrowRight className="w-4 h-4" />
@@ -104,7 +104,7 @@ function FeatureCard({
 }) {
     return (
         <div className="p-6 rounded-xl border bg-card hover:shadow-lg transition-shadow">
-            <div className="w-12 h-12 rounded-lg bg-violet-500/10 text-violet-600 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-lg bg-teal-700/10 text-teal-700 flex items-center justify-center mb-4">
                 {icon}
             </div>
             <h3 className="text-lg font-semibold mb-2">{title}</h3>

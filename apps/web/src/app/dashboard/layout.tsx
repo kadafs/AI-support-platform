@@ -35,7 +35,7 @@ export default function DashboardLayout({
             <aside className="w-64 border-r bg-card flex flex-col">
                 {/* Logo */}
                 <div className="h-16 flex items-center gap-2 px-4 border-b">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-700 to-teal-800 flex items-center justify-center">
                         <Ear className="w-5 h-5 text-white" />
                     </div>
                     <span className="font-semibold">Oh-liro</span>
