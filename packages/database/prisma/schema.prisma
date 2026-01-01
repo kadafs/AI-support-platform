@@ -1,0 +1,262 @@
+// Prisma Schema for AI-First SMB Customer Support Platform
+// Phase 1: Core entities for workspaces, users, conversations, messages, knowledge
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// WORKSPACE & USERS
+// ============================================================================
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  settings  Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  users            User[]
+  customers        Customer[]
+  conversations    Conversation[]
+  knowledgeSources KnowledgeSource[]
+  channels         Channel[]
+  automationRules  AutomationRule[]
+
+  @@map("workspaces")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String?
+  role         UserRole @default(AGENT)
+  avatarUrl    String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  workspaceId              String
+  workspace                Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  assignedConversations    Conversation[] @relation("AssignedAgent")
+  sentMessages             Message[]
+  
+  @@unique([email, workspaceId])
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  AGENT
+}
+
+// ============================================================================
+// CUSTOMERS
+// ============================================================================
+
+model Customer {
+  id        String   @id @default(cuid())
+  email     String?
+  name      String?
+  phone     String?
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  workspaceId   String
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  conversations Conversation[]
+
+  @@unique([email, workspaceId])
+  @@map("customers")
+}
+
+// ============================================================================
+// CONVERSATIONS & MESSAGES
+// ============================================================================
+
+model Conversation {
+  id        String             @id @default(cuid())
+  status    ConversationStatus @default(OPEN)
+  handler   ConversationHandler @default(AI)
+  channel   ChannelType
+  subject   String?
+  priority  Priority           @default(NORMAL)
+  metadata  Json               @default("{}")
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  closedAt  DateTime?
+
+  // Relations
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  customerId   String
+  customer     Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  assignedToId String?
+  assignedTo   User?     @relation("AssignedAgent", fields: [assignedToId], references: [id], onDelete: SetNull)
+  messages     Message[]
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, handler])
+  @@index([customerId])
+  @@map("conversations")
+}
+
+enum ConversationStatus {
+  OPEN
+  PENDING
+  RESOLVED
+  CLOSED
+}
+
+enum ConversationHandler {
+  AI
+  HUMAN
+  UNASSIGNED
+}
+
+enum Priority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+model Message {
+  id         String      @id @default(cuid())
+  content    String
+  sender     MessageSender
+  confidence Float?      // AI confidence score (0-1) if AI-generated
+  metadata   Json        @default("{}")
+  createdAt  DateTime    @default(now())
+
+  // Relations
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String?      // Only set if sender is AGENT
+  user           User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([conversationId])
+  @@map("messages")
+}
+
+enum MessageSender {
+  CUSTOMER
+  AI
+  AGENT
+  SYSTEM
+}
+
+// ============================================================================
+// KNOWLEDGE SOURCES
+// ============================================================================
+
+model KnowledgeSource {
+  id         String              @id @default(cuid())
+  type       KnowledgeSourceType
+  name       String
+  sourceUrl  String?             // For URL type
+  content    String?             // Raw content
+  status     KnowledgeStatus     @default(PENDING)
+  metadata   Json                @default("{}")
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  // Relations
+  workspaceId String
+  workspace   Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  chunks      KnowledgeChunk[]
+
+  @@map("knowledge_sources")
+}
+
+enum KnowledgeSourceType {
+  URL
+  QA
+  CSV
+  CONVERSATION
+  MANUAL
+}
+
+enum KnowledgeStatus {
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+}
+
+model KnowledgeChunk {
+  id        String   @id @default(cuid())
+  content   String
+  embedding Float[]  // Vector embedding for RAG
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now())
+
+  // Relations
+  sourceId String
+  source   KnowledgeSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@map("knowledge_chunks")
+}
+
+// ============================================================================
+// CHANNELS & INTEGRATIONS
+// ============================================================================
+
+model Channel {
+  id          String      @id @default(cuid())
+  type        ChannelType
+  name        String
+  enabled     Boolean     @default(true)
+  credentials Json        @default("{}")  // Encrypted API keys, tokens, etc.
+  settings    Json        @default("{}")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, type])
+  @@map("channels")
+}
+
+enum ChannelType {
+  LIVE_CHAT
+  EMAIL
+  WHATSAPP
+  FACEBOOK
+  INSTAGRAM
+}
+
+// ============================================================================
+// AUTOMATION RULES
+// ============================================================================
+
+model AutomationRule {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  enabled     Boolean  @default(true)
+  trigger     Json     // Trigger conditions (keywords, intent, sentiment, etc.)
+  action      Json     // Actions to perform (escalate, tag, assign, etc.)
+  priority    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@map("automation_rules")
+}
