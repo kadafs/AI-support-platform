@@ -1,3 +1,3 @@
-// Channel Integration Index
-export { EmailChannel } from './email';
-export { WhatsAppChannel } from './whatsapp';
+// Channel Integrations
+export { EmailChannel, getEmailChannel } from './email';
+export { WhatsAppChannel, getWhatsAppChannel } from './whatsapp';
