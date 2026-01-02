@@ -6,7 +6,8 @@
     "tasks": {
         "build": {
             "dependsOn": [
-                "^build"
+                "^build",
+                "db:generate"
             ],
             "outputs": [
                 ".next/**",
@@ -23,6 +24,17 @@
                 "^lint"
             ]
         },
+        "typecheck": {
+            "dependsOn": [
+                "^typecheck",
+                "db:generate"
+            ]
+        },
+        "test": {
+            "dependsOn": [
+                "^test"
+            ]
+        },
         "clean": {
             "cache": false
         },
@@ -30,6 +42,12 @@
             "cache": false
         },
         "db:push": {
+            "cache": false
+        },
+        "db:migrate": {
+            "cache": false
+        },
+        "db:migrate:deploy": {
             "cache": false
         }
     }

@@ -5,9 +5,15 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
     "clean": "turbo clean",
     "db:generate": "turbo db:generate",
-    "db:push": "turbo db:push"
+    "db:push": "turbo db:push",
+    "db:migrate": "pnpm --filter @support-platform/database db:migrate",
+    "db:migrate:deploy": "pnpm --filter @support-platform/database db:migrate:deploy",
+    "db:studio": "pnpm --filter @support-platform/database db:studio",
+    "worker": "pnpm --filter @support-platform/jobs worker"
   },
   "devDependencies": {
     "turbo": "^2.3.0",
