@@ -240,7 +240,6 @@ export default function SetupWizard() {
                                             )}
                                             style={{
                                                 backgroundColor: color.value,
-                                                ringColor: color.value,
                                             }}
                                             title={color.name}
                                         />
