@@ -48,10 +48,10 @@ const nextAuthResult = NextAuth({
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
-                token.id = user.id;
-                token.role = user.role;
-                token.workspaceId = user.workspaceId;
-                token.workspaceName = user.workspaceName;
+                token.id = user.id as string;
+                token.role = user.role as string;
+                token.workspaceId = user.workspaceId as string;
+                token.workspaceName = user.workspaceName as string;
             }
             return token;
         },
