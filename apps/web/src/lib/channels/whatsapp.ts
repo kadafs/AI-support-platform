@@ -198,9 +198,8 @@ export class WhatsAppChannel {
 
         await addWhatsAppSendJob({
             conversationId,
-            messageId: '',
-            recipientPhone: conversation.customer.phone,
-            content,
+            to: conversation.customer.phone,
+            body: content,
             workspaceId: conversation.workspaceId,
         });
     }
