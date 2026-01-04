@@ -1,9 +1,9 @@
-import NextAuth from 'next-auth';
+import NextAuth, { type NextAuthResult } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from '@support-platform/database';
 import bcrypt from 'bcryptjs';
 
-const nextAuthResult = NextAuth({
+const nextAuthResult: NextAuthResult = NextAuth({
     providers: [
         CredentialsProvider({
             name: 'Credentials',
