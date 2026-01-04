@@ -5,8 +5,23 @@ import { KnowledgeIngester } from '@support-platform/ai-engine';
 import { KnowledgeIngestionJobData, KnowledgeIngestionJobResult } from '../types';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const ingester = new KnowledgeIngester(openai);
+// Lazy initialization to avoid build-time errors when OPENAI_API_KEY isn't available
+let _openai: OpenAI | null = null;
+let _ingester: KnowledgeIngester | null = null;
+
+function getOpenAI(): OpenAI {
+    if (!_openai) {
+        _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    }
+    return _openai;
+}
+
+function getIngester(): KnowledgeIngester {
+    if (!_ingester) {
+        _ingester = new KnowledgeIngester(getOpenAI());
+    }
+    return _ingester;
+}
 
 export async function processKnowledgeIngestion(
     job: Job<KnowledgeIngestionJobData>
@@ -38,23 +53,23 @@ export async function processKnowledgeIngestion(
         switch (sourceType) {
             case 'URL':
                 if (!sourceUrl) throw new UnrecoverableError('URL is required');
-                chunks = await ingester.ingestURL(sourceId, source.name, sourceUrl);
+                chunks = await getIngester().ingestURL(sourceId, source.name, sourceUrl);
                 break;
 
             case 'QA':
                 if (!content) throw new UnrecoverableError('Q&A content is required');
                 const qaPairs = JSON.parse(content);
-                chunks = await ingester.ingestQA(sourceId, source.name, qaPairs);
+                chunks = await getIngester().ingestQA(sourceId, source.name, qaPairs);
                 break;
 
             case 'CSV':
                 if (!content) throw new UnrecoverableError('CSV content is required');
-                chunks = await ingester.ingestCSV(sourceId, source.name, content);
+                chunks = await getIngester().ingestCSV(sourceId, source.name, content);
                 break;
 
             case 'MANUAL':
                 if (!content) throw new UnrecoverableError('Text content is required');
-                chunks = await ingester.ingestText(sourceId, source.name, content);
+                chunks = await getIngester().ingestText(sourceId, source.name, content);
                 break;
 
             default:

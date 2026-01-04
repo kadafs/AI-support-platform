@@ -5,9 +5,31 @@ import { AIOrchestrator, EmbeddingService } from '@support-platform/ai-engine';
 import { AIResponseJobData, AIResponseJobResult } from '../types';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const orchestrator = new AIOrchestrator({ openaiApiKey: process.env.OPENAI_API_KEY! });
-const embeddingService = new EmbeddingService(openai);
+// Lazy initialization to avoid build-time errors when OPENAI_API_KEY isn't available
+let _openai: OpenAI | null = null;
+let _orchestrator: AIOrchestrator | null = null;
+let _embeddingService: EmbeddingService | null = null;
+
+function getOpenAI(): OpenAI {
+    if (!_openai) {
+        _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    }
+    return _openai;
+}
+
+function getOrchestrator(): AIOrchestrator {
+    if (!_orchestrator) {
+        _orchestrator = new AIOrchestrator({ openaiApiKey: process.env.OPENAI_API_KEY! });
+    }
+    return _orchestrator;
+}
+
+function getEmbeddingService(): EmbeddingService {
+    if (!_embeddingService) {
+        _embeddingService = new EmbeddingService(getOpenAI());
+    }
+    return _embeddingService;
+}
 
 export async function processAIResponse(
     job: Job<AIResponseJobData>
@@ -42,7 +64,7 @@ export async function processAIResponse(
         await job.updateProgress(30);
 
         // Get relevant knowledge chunks
-        const queryEmbedding = await embeddingService.createEmbedding(customerMessage);
+        const queryEmbedding = await getEmbeddingService().createEmbedding(customerMessage);
 
         // Fetch stored embeddings (simplified - in production use vector DB)
         const knowledgeChunks = await prisma.knowledgeChunk.findMany({
@@ -57,7 +79,7 @@ export async function processAIResponse(
         const relevantSources = knowledgeChunks
             .map((chunk) => {
                 const embedding = chunk.embedding as number[];
-                const similarity = embeddingService.cosineSimilarity(queryEmbedding, embedding);
+                const similarity = getEmbeddingService().cosineSimilarity(queryEmbedding, embedding);
                 return {
                     id: chunk.id,
                     name: chunk.source.name,
@@ -84,7 +106,7 @@ export async function processAIResponse(
             })),
         };
 
-        const aiResponse = await orchestrator.generateResponse(
+        const aiResponse = await getOrchestrator().generateResponse(
             context,
             customerMessage,
             relevantSources
