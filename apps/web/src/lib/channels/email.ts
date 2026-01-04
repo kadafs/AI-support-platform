@@ -238,10 +238,9 @@ export class EmailChannel {
 
         await addEmailSendJob({
             conversationId,
-            messageId: '', // Will be created by worker
-            recipientEmail: conversation.customer.email,
+            to: conversation.customer.email,
             subject: metadata?.emailSubject || 'Support Response',
-            content,
+            body: content,
             workspaceId: conversation.workspaceId,
         });
     }
