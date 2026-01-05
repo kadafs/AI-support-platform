@@ -4,6 +4,7 @@ import { getRedisConnection } from './queues';
 import { QUEUE_NAMES } from './types';
 import { processAIResponse } from './processors/ai-response';
 import { processKnowledgeIngestion } from './processors/knowledge-ingestion';
+import { processEmailSend, processEmailReceive } from './processors/email';
 
 const workers: Worker[] = [];
 
@@ -62,29 +63,43 @@ export function startWorker(): void {
 
     workers.push(knowledgeWorker);
 
-    // Email Send Worker (placeholder)
+    // Email Send Worker
     const emailSendWorker = new Worker(
         QUEUE_NAMES.EMAIL_SEND,
         async (job) => {
             console.log(`[Email] Processing send job ${job.id}`);
-            // TODO: Implement with Resend API
-            return { success: true };
+            return processEmailSend(job);
         },
         { connection, concurrency: 5 }
     );
 
+    emailSendWorker.on('completed', (job) => {
+        console.log(`[Email] Send job ${job.id} completed`);
+    });
+
+    emailSendWorker.on('failed', (job, err) => {
+        console.error(`[Email] Send job ${job?.id} failed:`, err.message);
+    });
+
     workers.push(emailSendWorker);
 
-    // Email Receive Worker (placeholder)
+    // Email Receive Worker
     const emailReceiveWorker = new Worker(
         QUEUE_NAMES.EMAIL_RECEIVE,
         async (job) => {
             console.log(`[Email] Processing receive job ${job.id}`);
-            // TODO: Implement email parsing and ticket creation
-            return { success: true };
+            return processEmailReceive(job);
         },
         { connection, concurrency: 5 }
     );
+
+    emailReceiveWorker.on('completed', (job) => {
+        console.log(`[Email] Receive job ${job.id} completed`);
+    });
+
+    emailReceiveWorker.on('failed', (job, err) => {
+        console.error(`[Email] Receive job ${job?.id} failed:`, err.message);
+    });
 
     workers.push(emailReceiveWorker);
 
