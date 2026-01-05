@@ -14,10 +14,25 @@ declare global {
 }
 
 // Default configuration
+const getApiUrl = (): string => {
+    // Try to detect from script tag src
+    const scriptEl = document.querySelector('script[data-workspace-id]') as HTMLScriptElement;
+    if (scriptEl?.src) {
+        try {
+            const url = new URL(scriptEl.src);
+            return `${url.protocol}//${url.host}`;
+        } catch {
+            // Fall through
+        }
+    }
+    // Default to current origin or localhost
+    return window.location.origin || 'http://localhost:3000';
+};
+
 const defaultConfig: WidgetConfig = {
     workspaceId: '',
-    apiUrl: 'https://api.supportai.com',
-    socketUrl: 'wss://socket.supportai.com',
+    apiUrl: getApiUrl(),
+    socketUrl: getApiUrl().replace('http', 'ws'),
     primaryColor: '#3b82f6',
     position: 'bottom-right',
     greeting: 'Hi there! 👋 How can we help you today?',

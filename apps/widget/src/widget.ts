@@ -1,47 +1,47 @@
 import { WidgetConfig, Message, ConversationState } from './types';
 
 export class Widget {
-    private config: WidgetConfig;
-    private container: HTMLDivElement | null = null;
-    private isOpen = false;
-    private state: ConversationState = {
-        id: null,
-        messages: [],
-        isTyping: false,
-        handler: 'ai',
-    };
+  private config: WidgetConfig;
+  private container: HTMLDivElement | null = null;
+  private isOpen = false;
+  private state: ConversationState = {
+    id: null,
+    messages: [],
+    isTyping: false,
+    handler: 'ai',
+  };
 
-    constructor(config: WidgetConfig) {
-        this.config = config;
+  constructor(config: WidgetConfig) {
+    this.config = config;
+  }
+
+  mount(): void {
+    this.createContainer();
+    this.render();
+    this.addEventListeners();
+  }
+
+  destroy(): void {
+    if (this.container) {
+      this.container.remove();
+      this.container = null;
     }
+  }
 
-    mount(): void {
-        this.createContainer();
-        this.render();
-        this.addEventListeners();
-    }
+  private createContainer(): void {
+    this.container = document.createElement('div');
+    this.container.id = 'support-widget-container';
+    this.container.className = `sw-container sw-${this.config.position}`;
+    document.body.appendChild(this.container);
 
-    destroy(): void {
-        if (this.container) {
-            this.container.remove();
-            this.container = null;
-        }
-    }
+    // Apply custom primary color
+    this.container.style.setProperty('--sw-primary', this.config.primaryColor);
+  }
 
-    private createContainer(): void {
-        this.container = document.createElement('div');
-        this.container.id = 'support-widget-container';
-        this.container.className = `sw-container sw-${this.config.position}`;
-        document.body.appendChild(this.container);
+  private render(): void {
+    if (!this.container) return;
 
-        // Apply custom primary color
-        this.container.style.setProperty('--sw-primary', this.config.primaryColor);
-    }
-
-    private render(): void {
-        if (!this.container) return;
-
-        this.container.innerHTML = `
+    this.container.innerHTML = `
       <button class="sw-launcher" aria-label="Open chat">
         <svg class="sw-launcher-icon sw-icon-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -56,9 +56,9 @@ export class Widget {
         <div class="sw-header">
           <div class="sw-header-info">
             ${this.config.companyLogo
-                ? `<img src="${this.config.companyLogo}" alt="" class="sw-header-logo" />`
-                : `<div class="sw-header-avatar">${this.config.companyName?.charAt(0) || 'S'}</div>`
-            }
+        ? `<img src="${this.config.companyLogo}" alt="" class="sw-header-logo" />`
+        : `<div class="sw-header-avatar">${this.config.companyName?.charAt(0) || 'S'}</div>`
+      }
             <div>
               <div class="sw-header-title">${this.config.companyName || 'Support'}</div>
               <div class="sw-header-status">
@@ -106,132 +106,189 @@ export class Widget {
         </div>
       </div>
     `;
-    }
+  }
 
-    private addEventListeners(): void {
-        if (!this.container) return;
+  private addEventListeners(): void {
+    if (!this.container) return;
 
-        // Launcher click
-        const launcher = this.container.querySelector('.sw-launcher');
-        launcher?.addEventListener('click', () => this.toggle());
+    // Launcher click
+    const launcher = this.container.querySelector('.sw-launcher');
+    launcher?.addEventListener('click', () => this.toggle());
 
-        // Close button
-        const closeBtn = this.container.querySelector('.sw-close-btn');
-        closeBtn?.addEventListener('click', () => this.close());
+    // Close button
+    const closeBtn = this.container.querySelector('.sw-close-btn');
+    closeBtn?.addEventListener('click', () => this.close());
 
-        // Form submit
-        const form = this.container.querySelector('.sw-input-form') as HTMLFormElement;
-        form?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const input = form.querySelector('.sw-input') as HTMLInputElement;
-            const message = input.value.trim();
-            if (message) {
-                this.sendMessage(message);
-                input.value = '';
-            }
+    // Form submit
+    const form = this.container.querySelector('.sw-input-form') as HTMLFormElement;
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = form.querySelector('.sw-input') as HTMLInputElement;
+      const message = input.value.trim();
+      if (message) {
+        this.sendMessage(message);
+        input.value = '';
+      }
+    });
+  }
+
+  private toggle(): void {
+    this.isOpen = !this.isOpen;
+    this.container?.classList.toggle('sw-open', this.isOpen);
+  }
+
+  private close(): void {
+    this.isOpen = false;
+    this.container?.classList.remove('sw-open');
+  }
+
+  private async sendMessage(content: string): Promise<void> {
+    const message: Message = {
+      id: `msg-${Date.now()}`,
+      content,
+      sender: 'customer',
+      timestamp: new Date(),
+      status: 'sending',
+    };
+
+    this.state.messages.push(message);
+    this.renderMessages();
+
+    // Show typing indicator
+    this.setTyping(true);
+
+    try {
+      // Create conversation if not exists
+      if (!this.state.id) {
+        const convResponse = await fetch(`${this.config.apiUrl}/api/widget`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            workspaceId: this.config.workspaceId,
+            initialMessage: content,
+          }),
         });
-    }
 
-    private toggle(): void {
-        this.isOpen = !this.isOpen;
-        this.container?.classList.toggle('sw-open', this.isOpen);
-    }
-
-    private close(): void {
-        this.isOpen = false;
-        this.container?.classList.remove('sw-open');
-    }
-
-    private async sendMessage(content: string): Promise<void> {
-        const message: Message = {
-            id: `msg-${Date.now()}`,
-            content,
-            sender: 'customer',
-            timestamp: new Date(),
-            status: 'sending',
-        };
-
-        this.state.messages.push(message);
-        this.renderMessages();
-
-        // Show typing indicator
-        this.setTyping(true);
-
-        try {
-            // TODO: Send to backend via WebSocket or API
-            // For now, simulate AI response
-            await this.simulateAIResponse(content);
-        } catch (error) {
-            message.status = 'error';
-            this.renderMessages();
+        if (!convResponse.ok) {
+          throw new Error('Failed to create conversation');
         }
+
+        const convData = await convResponse.json();
+        this.state.id = convData.conversationId;
+      } else {
+        // Add message to existing conversation
+        const msgResponse = await fetch(
+          `${this.config.apiUrl}/api/conversations/${this.state.id}/messages`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              content,
+              sender: 'CUSTOMER',
+            }),
+          }
+        );
+
+        if (!msgResponse.ok) {
+          throw new Error('Failed to send message');
+        }
+      }
+
+      message.status = 'sent';
+      this.renderMessages();
+
+      // Poll for AI response (simple polling for now, can be replaced with WebSocket)
+      await this.pollForResponse();
+    } catch (error) {
+      console.error('Error sending message:', error);
+      message.status = 'error';
+      this.setTyping(false);
+      this.renderMessages();
     }
+  }
 
-    private async simulateAIResponse(userMessage: string): Promise<void> {
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+  private async pollForResponse(): Promise<void> {
+    if (!this.state.id) return;
 
-        this.setTyping(false);
+    // Wait a bit for AI to process
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
-        const response: Message = {
-            id: `msg-${Date.now()}`,
-            content: this.generateMockResponse(userMessage),
+    try {
+      const response = await fetch(
+        `${this.config.apiUrl}/api/conversations/${this.state.id}/messages`
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        const messages = data.messages || [];
+
+        // Find new AI messages
+        const newMessages = messages.filter((msg: any) =>
+          msg.sender === 'AI' &&
+          !this.state.messages.find(m => m.id === msg.id)
+        );
+
+        for (const msg of newMessages) {
+          this.state.messages.push({
+            id: msg.id,
+            content: msg.content,
             sender: 'ai',
-            timestamp: new Date(),
-        };
-
-        this.state.messages.push(response);
-        this.renderMessages();
-    }
-
-    private generateMockResponse(query: string): string {
-        const responses = [
-            "I'd be happy to help you with that! Let me look into it.",
-            "Thanks for reaching out! I can definitely assist you with this.",
-            "Great question! Here's what I found...",
-            "I understand. Let me provide you with the information you need.",
-        ];
-        return responses[Math.floor(Math.random() * responses.length)];
-    }
-
-    private setTyping(isTyping: boolean): void {
-        this.state.isTyping = isTyping;
-        const typingEl = this.container?.querySelector('.sw-typing') as HTMLElement;
-        if (typingEl) {
-            typingEl.style.display = isTyping ? 'flex' : 'none';
+            timestamp: new Date(msg.createdAt),
+          });
         }
+
+        if (newMessages.length > 0) {
+          this.setTyping(false);
+          this.renderMessages();
+        } else {
+          // Keep polling if no response yet
+          setTimeout(() => this.pollForResponse(), 2000);
+        }
+      }
+    } catch (error) {
+      console.error('Error polling for response:', error);
+      this.setTyping(false);
     }
+  }
 
-    private renderMessages(): void {
-        const messagesContainer = this.container?.querySelector('.sw-messages');
-        if (!messagesContainer) return;
+  private setTyping(isTyping: boolean): void {
+    this.state.isTyping = isTyping;
+    const typingEl = this.container?.querySelector('.sw-typing') as HTMLElement;
+    if (typingEl) {
+      typingEl.style.display = isTyping ? 'flex' : 'none';
+    }
+  }
 
-        // Keep greeting, add messages after
-        const greeting = messagesContainer.querySelector('.sw-greeting');
-        messagesContainer.innerHTML = '';
-        if (greeting) messagesContainer.appendChild(greeting);
+  private renderMessages(): void {
+    const messagesContainer = this.container?.querySelector('.sw-messages');
+    if (!messagesContainer) return;
 
-        this.state.messages.forEach(msg => {
-            const msgEl = document.createElement('div');
-            msgEl.className = `sw-message sw-message-${msg.sender}`;
-            msgEl.innerHTML = `
+    // Keep greeting, add messages after
+    const greeting = messagesContainer.querySelector('.sw-greeting');
+    messagesContainer.innerHTML = '';
+    if (greeting) messagesContainer.appendChild(greeting);
+
+    this.state.messages.forEach(msg => {
+      const msgEl = document.createElement('div');
+      msgEl.className = `sw-message sw-message-${msg.sender}`;
+      msgEl.innerHTML = `
         <div class="sw-message-content">${this.escapeHtml(msg.content)}</div>
         <div class="sw-message-time">${this.formatTime(msg.timestamp)}</div>
       `;
-            messagesContainer.appendChild(msgEl);
-        });
+      messagesContainer.appendChild(msgEl);
+    });
 
-        // Scroll to bottom
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
+    // Scroll to bottom
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
 
-    private escapeHtml(text: string): string {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
+  private escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
 
-    private formatTime(date: Date): string {
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
+  private formatTime(date: Date): string {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
 }
