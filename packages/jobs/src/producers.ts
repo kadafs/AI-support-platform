@@ -1,5 +1,5 @@
 // Job Producers - Add jobs to queues
-import { createQueues } from './queues';
+import { createQueues, JobQueues } from './queues';
 import {
     QUEUE_NAMES,
     AIResponseJobData,
@@ -11,13 +11,21 @@ import {
     AnalyticsJobData,
 } from './types';
 
-const queues = createQueues();
+// Lazy initialization to avoid connecting to Redis at build time
+let _queues: JobQueues | null = null;
+
+function getQueues(): JobQueues {
+    if (!_queues) {
+        _queues = createQueues();
+    }
+    return _queues;
+}
 
 /**
  * Add AI response job - triggered when customer sends a message
  */
 export async function addAIResponseJob(data: AIResponseJobData): Promise<string> {
-    const job = await queues[QUEUE_NAMES.AI_RESPONSE].add(
+    const job = await getQueues()[QUEUE_NAMES.AI_RESPONSE].add(
         'generate-response',
         data,
         {
@@ -31,7 +39,7 @@ export async function addAIResponseJob(data: AIResponseJobData): Promise<string>
  * Add knowledge ingestion job - triggered when new knowledge source is added
  */
 export async function addKnowledgeIngestionJob(data: KnowledgeIngestionJobData): Promise<string> {
-    const job = await queues[QUEUE_NAMES.KNOWLEDGE_INGESTION].add(
+    const job = await getQueues()[QUEUE_NAMES.KNOWLEDGE_INGESTION].add(
         'ingest-knowledge',
         data,
         {
@@ -45,7 +53,7 @@ export async function addKnowledgeIngestionJob(data: KnowledgeIngestionJobData):
  * Add email send job
  */
 export async function addEmailSendJob(data: EmailSendJobData): Promise<string> {
-    const job = await queues[QUEUE_NAMES.EMAIL_SEND].add(
+    const job = await getQueues()[QUEUE_NAMES.EMAIL_SEND].add(
         'send-email',
         data,
         {
@@ -59,7 +67,7 @@ export async function addEmailSendJob(data: EmailSendJobData): Promise<string> {
  * Add email receive job (from webhook)
  */
 export async function addEmailReceiveJob(data: EmailReceiveJobData): Promise<string> {
-    const job = await queues[QUEUE_NAMES.EMAIL_RECEIVE].add(
+    const job = await getQueues()[QUEUE_NAMES.EMAIL_RECEIVE].add(
         'process-email',
         data
     );
@@ -70,7 +78,7 @@ export async function addEmailReceiveJob(data: EmailReceiveJobData): Promise<str
  * Add WhatsApp send job
  */
 export async function addWhatsAppSendJob(data: WhatsAppSendJobData): Promise<string> {
-    const job = await queues[QUEUE_NAMES.WHATSAPP_SEND].add(
+    const job = await getQueues()[QUEUE_NAMES.WHATSAPP_SEND].add(
         'send-whatsapp',
         data,
         {
@@ -84,7 +92,7 @@ export async function addWhatsAppSendJob(data: WhatsAppSendJobData): Promise<str
  * Add WhatsApp receive job (from webhook)
  */
 export async function addWhatsAppReceiveJob(data: WhatsAppReceiveJobData): Promise<string> {
-    const job = await queues[QUEUE_NAMES.WHATSAPP_RECEIVE].add(
+    const job = await getQueues()[QUEUE_NAMES.WHATSAPP_RECEIVE].add(
         'process-whatsapp',
         data
     );
@@ -95,7 +103,7 @@ export async function addWhatsAppReceiveJob(data: WhatsAppReceiveJobData): Promi
  * Add analytics job
  */
 export async function addAnalyticsJob(data: AnalyticsJobData): Promise<string> {
-    const job = await queues[QUEUE_NAMES.ANALYTICS].add(
+    const job = await getQueues()[QUEUE_NAMES.ANALYTICS].add(
         'track-event',
         data
     );
