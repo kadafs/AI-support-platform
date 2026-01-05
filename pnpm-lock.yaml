@@ -170,6 +170,9 @@ importers:
       openai:
         specifier: ^4.75.0
         version: 4.104.0(ws@8.18.3)(zod@3.25.76)
+      resend:
+        specifier: ^3.0.0
+        version: 3.5.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
     devDependencies:
       '@types/node':
         specifier: ^22.0.0
