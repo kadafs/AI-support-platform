@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
             bodySizeLimit: '2mb',
         },
         outputFileTracingRoot: path.join(__dirname, '../../'),
+        serverComponentsExternalPackages: ['@prisma/client', 'prisma'],
     },
 };
 
