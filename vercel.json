@@ -1,6 +1,6 @@
 {
     "$schema": "https://openapi.vercel.sh/vercel.json",
-    "buildCommand": "pnpm turbo build --filter=@support-platform/web",
+    "buildCommand": "cd packages/database && pnpm prisma generate && cd ../.. && pnpm turbo build --filter=@support-platform/web",
     "outputDirectory": ".next",
     "installCommand": "pnpm install",
     "ignoreCommand": "npx turbo-ignore",
@@ -13,7 +13,8 @@
         }
     },
     "env": {
-        "TURBO_REMOTE_ONLY": "true"
+        "TURBO_REMOTE_ONLY": "true",
+        "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true"
     },
     "headers": [
         {
