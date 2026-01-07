@@ -6,12 +6,12 @@ const nextConfig: NextConfig = {
     transpilePackages: ['@support-platform/database', '@support-platform/shared'],
     outputFileTracingRoot: path.join(__dirname, '../../'),
     serverExternalPackages: ['@prisma/client', 'prisma'],
+    outputFileTracingIncludes: {
+        '/api/**/*': ['../../packages/database/node_modules/.prisma/client/**/*'],
+    },
     experimental: {
         serverActions: {
             bodySizeLimit: '2mb',
-        },
-        outputFileTracingIncludes: {
-            '/api/**/*': ['../../packages/database/node_modules/.prisma/client/**/*'],
         },
     },
     webpack: (config, { isServer }) => {
