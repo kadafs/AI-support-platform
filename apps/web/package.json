@@ -16,6 +16,7 @@
         "@support-platform/database": "workspace:*",
         "@support-platform/shared": "workspace:*",
         "@support-platform/jobs": "workspace:*",
+        "@prisma/client": "^5.22.0",
         "next": "^15.1.0",
         "next-auth": "^5.0.0-beta.25",
         "react": "^19.0.0",

@@ -10,6 +10,17 @@ const nextConfig: NextConfig = {
         serverActions: {
             bodySizeLimit: '2mb',
         },
+        outputFileTracingIncludes: {
+            '/api/**/*': ['../../packages/database/node_modules/.prisma/client/**/*'],
+        },
+    },
+    webpack: (config, { isServer }) => {
+        if (isServer) {
+            config.externals.push({
+                '@prisma/client': 'commonjs @prisma/client',
+            });
+        }
+        return config;
     },
 };
 

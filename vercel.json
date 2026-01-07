@@ -14,7 +14,8 @@
     },
     "env": {
         "TURBO_REMOTE_ONLY": "true",
-        "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true"
+        "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true",
+        "PRISMA_CLI_BINARY_TARGETS": "native,rhel-openssl-3.0.x"
     },
     "headers": [
         {
